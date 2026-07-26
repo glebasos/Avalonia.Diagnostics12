@@ -40,8 +40,14 @@ namespace Avalonia.Diagnostics.Views
                     if (x is RawPointerEventArgs pointerEventArgs)
                     {
                         // Avalonia 12: RawInputEventArgs.Root is an IInputRoot (PresentationSource),
-                        // no longer a Visual. The root visual is exposed via IInputRoot.RootElement.
-                        _lastPointerPosition = x.Root.RootElement.PointToScreen(pointerEventArgs.Position);
+                        // no longer a Visual. Convert through the owning TopLevel: a TopLevel is its
+                        // own visual root, so PointToScreen is well-defined even for popup roots
+                        // (converting via a non-root element can throw when it shares no common
+                        // ancestor with the presentation source's root visual).
+                        if (TopLevel.GetTopLevel(x.Root.RootElement) is { } inputTopLevel)
+                        {
+                            _lastPointerPosition = inputTopLevel.PointToScreen(pointerEventArgs.Position);
+                        }
                     }
                     else if (x is RawKeyEventArgs keyEventArgs && keyEventArgs.Type == RawKeyEventType.KeyDown)
                     {
