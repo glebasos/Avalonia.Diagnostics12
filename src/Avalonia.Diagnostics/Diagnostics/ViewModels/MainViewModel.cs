@@ -48,12 +48,23 @@ namespace Avalonia.Diagnostics.ViewModels
             if (KeyboardDevice.Instance is not null)
                 KeyboardDevice.Instance.PropertyChanged += KeyboardPropertyChanged;
             SelectedTab = 0;
-            if (root is TopLevel topLevel)
+            if (root is TopLevel topLevel && topLevel.InputRoot is { } inputRoot)
             {
-                _pointerOverRoot = topLevel;
-                _pointerOverSubscription = topLevel.GetObservable(TopLevel.PointerOverElementProperty)
-                    .Subscribe(x => PointerOverElement = x);
-
+                // Avalonia 12 removed TopLevel.PointerOverElementProperty and exposes the
+                // pointer-over element only via the (internal) IInputRoot. There is no change
+                // notification, so we refresh from raw pointer events after they've been processed.
+                _pointerOverRoot = inputRoot;
+                PointerOverElement = inputRoot.PointerOverElement;
+                _pointerOverSubscription = InputManager.Instance!.PostProcess
+                    .Subscribe(e =>
+                        {
+                            // PointerOverElement is this root's own state, so reading it after any
+                            // processed pointer event is harmless and always reflects the latest value.
+                            if (e is Input.Raw.RawPointerEventArgs)
+                            {
+                                PointerOverElement = inputRoot.PointerOverElement;
+                            }
+                        });
             }
             else
             {
@@ -63,7 +74,7 @@ namespace Avalonia.Diagnostics.ViewModels
                             if (e is Input.Raw.RawPointerEventArgs pointerEventArgs)
                             {
                                 PointerOverRoot = pointerEventArgs.Root;
-                                PointerOverElement = pointerEventArgs.Root.InputHitTest(pointerEventArgs.Position);
+                                PointerOverElement = pointerEventArgs.Root.RootElement.InputHitTest(pointerEventArgs.Position);
                             }
                         });
             }

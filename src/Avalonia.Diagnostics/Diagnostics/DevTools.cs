@@ -47,7 +47,7 @@ namespace Avalonia.Diagnostics
 
         internal static IDisposable Attach(Application application, DevToolsOptions options)
         {
-            var openedDisposable = new SerialDisposableValue();
+            var openedDisposable = new SerialDisposableSlot();
             var result = new CompositeDisposable(2);
             result.Add(openedDisposable);
 
@@ -161,6 +161,42 @@ namespace Avalonia.Diagnostics
                 }
             }
             return true;
+        }
+
+        /// <summary>
+        /// Minimal replacement for the internal Avalonia <c>SerialDisposableValue</c> that was
+        /// removed in Avalonia 12. Holds a single disposable, disposing the previous one when a new
+        /// value is assigned, and disposing the current one when the slot itself is disposed.
+        /// </summary>
+        private sealed class SerialDisposableSlot : IDisposable
+        {
+            private IDisposable? _current;
+            private bool _disposed;
+
+            public IDisposable? Disposable
+            {
+                get => _current;
+                set
+                {
+                    var old = _current;
+                    _current = value;
+                    old?.Dispose();
+                    if (_disposed)
+                    {
+                        _current = null;
+                        value?.Dispose();
+                    }
+                }
+            }
+
+            public void Dispose()
+            {
+                if (_disposed)
+                    return;
+                _disposed = true;
+                _current?.Dispose();
+                _current = null;
+            }
         }
     }
 }

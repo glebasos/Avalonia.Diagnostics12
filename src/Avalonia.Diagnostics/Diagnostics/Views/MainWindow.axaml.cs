@@ -39,7 +39,9 @@ namespace Avalonia.Diagnostics.Views
                 {
                     if (x is RawPointerEventArgs pointerEventArgs)
                     {
-                        _lastPointerPosition = ((Visual)x.Root).PointToScreen(pointerEventArgs.Position);
+                        // Avalonia 12: RawInputEventArgs.Root is an IInputRoot (PresentationSource),
+                        // no longer a Visual. The root visual is exposed via IInputRoot.RootElement.
+                        _lastPointerPosition = x.Root.RootElement.PointToScreen(pointerEventArgs.Position);
                     }
                     else if (x is RawKeyEventArgs keyEventArgs && keyEventArgs.Type == RawKeyEventType.KeyDown)
                     {
@@ -165,9 +167,12 @@ namespace Avalonia.Diagnostics.Views
 
         private void RawKeyDown(RawKeyEventArgs e)
         {
+            // Avalonia 12: PointerOverRoot is an IInputRoot (a PresentationSource), no longer the
+            // TopLevel itself, so resolve the owning TopLevel from the root element.
             if (_hotKeys is null ||
                 DataContext is not MainViewModel vm ||
-                vm.PointerOverRoot is not TopLevel root)
+                vm.PointerOverRoot is not { } pointerOverRoot ||
+                TopLevel.GetTopLevel(pointerOverRoot.RootElement) is not { } root)
             {
                 return;
             }
