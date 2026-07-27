@@ -42,6 +42,27 @@ Press **F12** to open the DevTools window.
 - The NuGet package id is `AvaDiagnostics12`, so this fork is never confused with the official
   `Avalonia.Diagnostics` package at install time.
 
+## Tests
+
+```
+dotnet test Avalonia.Diagnostics.slnx
+```
+
+`tests/Avalonia.Diagnostics.UnitTests` covers the view models, the filter and conversion helpers, and
+the Avalonia 11 → 12 port fixes that compile cleanly but break at runtime. UI-thread tests use
+`Avalonia.Headless` via `[AvaloniaFact]`/`[AvaloniaTheory]` (xunit v3); the rest are plain `[Fact]`s.
+
+Nearly everything in this library is `internal`, so the test project is granted access through
+`src/Avalonia.Diagnostics/Properties/InternalsVisibleTo.cs` and is signed with the same
+`build/avalonia.snk`. That grant does **not** extend to Avalonia's own internals — tests cannot name
+types such as `InputManager`, `TopLevel.InputRoot` or `LayoutManager`, and `RawKeyEventArgs` has no
+publicly reachable constructor. Where that got in the way, the logic under test was split into a
+helper taking only public types rather than reached by reflection, so a rename still breaks the test.
+
+Not covered: `VisualExtensions.RenderTo` (needs real Skia rendering, not the default headless
+platform) and the popup-freeze / hotkey input plumbing in `Views/MainWindow` (needs synthesized raw
+input against live popup roots).
+
 ## Known limitation: assembly identity
 
 The shipped assembly is still named `Avalonia.Diagnostics` and is still strong-named with AvaloniaUI's

@@ -7,4 +7,5 @@
   </Folder>
   <Project Path="samples/Avalonia.Diagnostics.Sample/Avalonia.Diagnostics.Sample.csproj" />
   <Project Path="src/Avalonia.Diagnostics/Avalonia.Diagnostics.csproj" />
+  <Project Path="tests/Avalonia.Diagnostics.UnitTests/Avalonia.Diagnostics.UnitTests.csproj" />
 </Solution>

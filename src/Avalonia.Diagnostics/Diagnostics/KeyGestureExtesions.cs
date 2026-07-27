@@ -6,8 +6,15 @@ namespace Avalonia.Diagnostics
     internal static class KeyGestureExtesions
     {
         public static bool Matches(this KeyGesture gesture, RawKeyEventArgs keyEvent) =>
-            (KeyModifiers)(keyEvent.Modifiers & RawInputModifiers.KeyboardMask) == gesture.KeyModifiers &&
-                ResolveNumPadOperationKey(keyEvent.Key) == ResolveNumPadOperationKey(gesture.Key);
+            gesture.Matches(keyEvent.Key, keyEvent.Modifiers);
+
+        /// <summary>
+        /// The comparison itself, split out from the event argument so it can be covered by a test:
+        /// <see cref="RawKeyEventArgs"/> cannot be constructed from outside Avalonia.
+        /// </summary>
+        internal static bool Matches(this KeyGesture gesture, Key key, RawInputModifiers modifiers) =>
+            (KeyModifiers)(modifiers & RawInputModifiers.KeyboardMask) == gesture.KeyModifiers &&
+                ResolveNumPadOperationKey(key) == ResolveNumPadOperationKey(gesture.Key);
 
         private static Key ResolveNumPadOperationKey(Key key)
         {

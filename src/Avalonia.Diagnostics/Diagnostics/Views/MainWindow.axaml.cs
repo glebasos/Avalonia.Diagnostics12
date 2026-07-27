@@ -237,14 +237,22 @@ namespace Avalonia.Diagnostics.Views
         /// input root's <c>RootElement</c> is a host visual that sits above the TopLevel, so the
         /// TopLevel must be found by searching downward rather than via <see cref="TopLevel.GetTopLevel"/>.
         /// </summary>
-        private static TopLevel? ResolveTopLevel(IInputRoot inputRoot)
+        internal static TopLevel? ResolveTopLevel(IInputRoot inputRoot)
         {
             if (inputRoot.RootElement is not Visual rootVisual)
                 return null;
 
-            return rootVisual as TopLevel
-                   ?? rootVisual.GetVisualDescendants().OfType<TopLevel>().FirstOrDefault();
+            return ResolveTopLevel(rootVisual);
         }
+
+        /// <summary>
+        /// The downward search itself, split out so it can be covered by a test: an
+        /// <see cref="IInputRoot"/> cannot be constructed from outside Avalonia, but the host visual
+        /// it hands out is just the TopLevel's visual parent.
+        /// </summary>
+        internal static TopLevel? ResolveTopLevel(Visual rootVisual)
+            => rootVisual as TopLevel
+               ?? rootVisual.GetVisualDescendants().OfType<TopLevel>().FirstOrDefault();
 
         private void FreezeValueFrames(MainViewModel vm)
         {

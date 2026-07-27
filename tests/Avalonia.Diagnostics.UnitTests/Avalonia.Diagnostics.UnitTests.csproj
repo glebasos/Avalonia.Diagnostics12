@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- The library targets net8.0; the tests run on the current SDK's runtime. A net8.0 library
+         loads fine into a net10.0 test host. -->
+    <TargetFramework>net10.0</TargetFramework>
+    <!-- xunit v3 test projects are self-executing. -->
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>Avalonia.Diagnostics</RootNamespace>
+    <!-- Signed with the same key as the library, because Avalonia.Diagnostics is strong-named and
+         its InternalsVisibleTo (src/Avalonia.Diagnostics/Properties/InternalsVisibleTo.cs) therefore
+         has to name a PublicKey. Kept here rather than importing build/SharedVersion.props, which
+         also carries the NuGet packaging properties this project must not inherit. -->
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)../../build/avalonia.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia.Headless" />
+    <PackageReference Include="Avalonia.Headless.XUnit" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/Avalonia.Diagnostics/Avalonia.Diagnostics.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -168,7 +168,7 @@ namespace Avalonia.Diagnostics
         /// removed in Avalonia 12. Holds a single disposable, disposing the previous one when a new
         /// value is assigned, and disposing the current one when the slot itself is disposed.
         /// </summary>
-        private sealed class SerialDisposableSlot : IDisposable
+        internal sealed class SerialDisposableSlot : IDisposable
         {
             private IDisposable? _current;
             private bool _disposed;

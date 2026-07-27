@@ -10,4 +10,13 @@
         <PackageVersion Include="Avalonia.Controls.DataGrid" Version="12.1.0" />
         <PackageVersion Include="Avalonia.Controls.ColorPicker" Version="12.1.0" />
     </ItemGroup>
+    <!-- Test-only packages. Avalonia.Headless.XUnit 12.1.0 is built against xunit.v3 3.2.2, so the
+         test project is an xunit v3 (self-executing) project, not v2. -->
+    <ItemGroup>
+        <PackageVersion Include="Avalonia.Headless" Version="12.1.0" />
+        <PackageVersion Include="Avalonia.Headless.XUnit" Version="12.1.0" />
+        <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
+        <PackageVersion Include="xunit.v3" Version="3.2.2" />
+        <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
+    </ItemGroup>
 </Project>

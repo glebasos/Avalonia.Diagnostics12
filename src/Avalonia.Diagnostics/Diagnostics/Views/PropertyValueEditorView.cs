@@ -218,7 +218,13 @@ namespace Avalonia.Diagnostics.Views
                 {
                     try
                     {
-                        if (t != null)
+                        // Only validate text the user actually typed. What the binding puts here comes from
+                        // ToString(value), and plenty of types don't render as something their own converter
+                        // can parse back - TransformOperations has no ToString override, so the row displays
+                        // "Avalonia.Media.Transformation.TransformOperations" and validating that would paint
+                        // a pristine, untouched row red. CommittedText is the control's own record of the
+                        // unedited value, so text still equal to it is by definition not a user edit.
+                        if (t != null && t != tb.CommittedText)
                         {
                             StringConversionHelper.FromString(t, propertyType);
                         }
@@ -329,7 +335,8 @@ namespace Avalonia.Diagnostics.Views
             }
         }
 
-        private static class StringConversionHelper
+        // internal rather than private so the ICommand read-only rule below can be covered by a test.
+        internal static class StringConversionHelper
         {
             private const BindingFlags PublicStatic = BindingFlags.Public | BindingFlags.Static;
             private static readonly Type[] StringParameter = { typeof(string) };
