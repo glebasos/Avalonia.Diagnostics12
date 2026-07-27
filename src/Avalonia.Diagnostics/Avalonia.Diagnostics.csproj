@@ -3,6 +3,11 @@
   <PropertyGroup>
     <TargetFramework>$(AvsCurrentTargetFramework)</TargetFramework>
     <RootNamespace>Avalonia</RootNamespace>
+    <!-- Only the NuGet package id is renamed. AssemblyName MUST stay Avalonia.Diagnostics: the
+         Avalonia 12 assemblies grant this code access to their internals via
+         InternalsVisibleTo("Avalonia.Diagnostics", PublicKey=<AvaloniaUI's key>), so both the
+         assembly name and the strong-name key in build/SharedVersion.props are load-bearing. -->
+    <PackageId>AvaDiagnostics12</PackageId>
   </PropertyGroup>
 
   <ItemGroup>

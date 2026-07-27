@@ -1,46 +1,73 @@
-[![NuGet](https://img.shields.io/nuget/v/Avalonia.Diagnostics.svg)](https://www.nuget.org/packages/Avalonia.Diagnostics/)
+# AvaDiagnostics12
 
-# Avalonia.Diagnostics (Legacy)
+An unofficial community fork of the legacy `Avalonia.Diagnostics` in-process DevTools, updated to build
+and run against **Avalonia 12**.
 
-> **⚠️ This package is deprecated.** The legacy in-process DevTools have been replaced by the standalone [AvaloniaUI Developer Tools](https://docs.avaloniaui.net/tools/developer-tools/installation). Please migrate to the new tool — see the [migration guide](#migrating-to-developer-tools) below.
+> Not affiliated with or endorsed by the AvaloniaUI project. The upstream package was
+> [archived and deprecated](https://docs.avaloniaui.net/tools/developer-tools/installation) in favour of
+> the standalone AvaloniaUI Developer Tools — see [Upstream alternative](#upstream-alternative) below.
 
-This repository is a read-only archive of the legacy `Avalonia.Diagnostics` package, previously part of the [Avalonia](https://github.com/AvaloniaUI/Avalonia) repository.
-It provided an in-process DevTools window for inspecting the visual tree, styles, and properties of Avalonia applications.
+## Install
 
-## Migrating to Developer Tools
+```
+dotnet add package AvaDiagnostics12
+```
 
-1. Remove the `Avalonia.Diagnostics` package:
-   ```
-   dotnet remove package Avalonia.Diagnostics
-   ```
+## Usage
 
-2. Install the new diagnostics support package:
-   ```
-   dotnet add package AvaloniaUI.DiagnosticsSupport
-   ```
+The public API is unchanged from the original package — the namespaces are still `Avalonia.Diagnostics.*`,
+so existing code needs no edits:
 
-3. Install the standalone Developer Tools:
-   ```
-   dotnet tool install --global AvaloniaUI.DeveloperTools
-   ```
+```csharp
+public override void OnFrameworkInitializationCompleted()
+{
+    if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+    {
+        desktop.MainWindow = new MainWindow();
+#if DEBUG
+        desktop.MainWindow.AttachDevTools();
+#endif
+    }
 
-4. Update your `Application` class:
-   ```csharp
-   public override void Initialize()
-   {
-       AvaloniaXamlLoader.Load(this);
-   #if DEBUG
-       this.AttachDeveloperTools();
-   #endif
-   }
-   ```
+    base.OnFrameworkInitializationCompleted();
+}
+```
 
-5. Run your app and press **F12** to launch Developer Tools.
+Press **F12** to open the DevTools window.
 
-The standalone Developer Tools includes a free **Community edition** that covers all features available in the legacy `Avalonia.Diagnostics` package — no license required.
+## What changed from upstream
 
-For full details, see the [Developer Tools documentation](https://docs.avaloniaui.net/tools/developer-tools/installation).
+- Ported to the Avalonia 12 input APIs (`RawInputEventArgs.Root` and `PointerOverRoot` are now
+  `IInputRoot` rather than `Visual`), including hotkey and pointer-position handling over popup roots.
+- The NuGet package id is `AvaDiagnostics12`, so this fork is never confused with the official
+  `Avalonia.Diagnostics` package at install time.
+
+## Known limitation: assembly identity
+
+The shipped assembly is still named `Avalonia.Diagnostics` and is still strong-named with AvaloniaUI's
+key. This is not a cosmetic leftover — Avalonia 12 exposes the internals this code needs
+(`InputManager`, `IRenderer`, `IClassesChangedListener`) through
+`[assembly: InternalsVisibleTo("Avalonia.Diagnostics", PublicKey=…)]`. Renaming the assembly or signing
+with a different key fails the build with `CS0122`.
+
+Consequence: **do not reference `AvaDiagnostics12` and the official `Avalonia.Diagnostics` package in
+the same project** — both produce an `Avalonia.Diagnostics.dll` and the build will fail with a file
+conflict. Use one or the other.
+
+## Upstream alternative
+
+If you don't need the classic in-process window, the maintained replacement is:
+
+```
+dotnet add package AvaloniaUI.DiagnosticsSupport
+dotnet tool install --global AvaloniaUI.DeveloperTools
+```
+
+Then call `this.AttachDeveloperTools()` in `Application.Initialize()` and press **F12**. It includes a
+free Community edition covering everything the legacy package did. See the
+[Developer Tools documentation](https://docs.avaloniaui.net/tools/developer-tools/installation).
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+MIT — see [LICENSE](LICENSE). Original code copyright © The AvaloniaUI Project. Everything in this
+fork is released under the same MIT license; do whatever you like with it.

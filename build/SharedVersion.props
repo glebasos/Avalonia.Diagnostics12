@@ -1,28 +1,32 @@
-<Project DefaultTargets="Build" 
+<Project DefaultTargets="Build"
   xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <PropertyGroup>
-    <Product>Avalonia</Product>
-    <Version>12.1.999$(CIVersionSuffix)</Version>
-    <Authors>Avalonia Team</Authors>
-    <Copyright>Copyright 2013-$([System.DateTime]::Now.ToString(`yyyy`)) &#169; The AvaloniaUI Project</Copyright>
-    <PackageProjectUrl>https://avaloniaui.net/?utm_source=nuget&amp;utm_medium=referral&amp;utm_content=project_homepage_link</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/AvaloniaUI/Avalonia.Controls.DataGrid</RepositoryUrl>
+    <Product>AvaDiagnostics12</Product>
+    <Version>12.1.0-preview.1$(CIVersionSuffix)</Version>
+    <Authors>glebasos</Authors>
+    <Copyright>Copyright 2013-2025 &#169; The AvaloniaUI Project. Fork changes released under the same MIT license.</Copyright>
+    <PackageProjectUrl>https://github.com/glebasos/Avalonia.Diagnostics12</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/glebasos/Avalonia.Diagnostics12</RepositoryUrl>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageIcon>Icon.png</PackageIcon>
-    <PackageDescription>Avalonia is a cross-platform UI framework for .NET providing a flexible styling system and supporting a wide range of Operating Systems such as Windows, Linux, macOS and with experimental support for Android, iOS and WebAssembly.</PackageDescription>
-    <PackageTags>avalonia;avaloniaui;mvvm;rx;reactive extensions;android;ios;mac;forms;wpf;net;netstandard;net461;uwp;xamarin</PackageTags>
-    <PackageReleaseNotes>https://github.com/AvaloniaUI/Avalonia.Controls.DataGrid/releases</PackageReleaseNotes>
+    <PackageDescription>Unofficial community fork of the legacy Avalonia.Diagnostics in-process DevTools, updated to run against Avalonia 12. Provides the classic AttachDevTools() window for inspecting the visual tree, styles, properties and events of an Avalonia application. Not affiliated with or endorsed by the AvaloniaUI project.</PackageDescription>
+    <PackageTags>avalonia;avaloniaui;devtools;diagnostics;debugging;visual tree;inspector</PackageTags>
+    <PackageReleaseNotes>https://github.com/glebasos/Avalonia.Diagnostics12/releases</PackageReleaseNotes>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
     <RepositoryType>git</RepositoryType>
+    <!-- Signing with AvaloniaUI's public snk is required, not cosmetic: Avalonia 12 grants access to
+         its internals via InternalsVisibleTo("Avalonia.Diagnostics", PublicKey=<this key>), and the
+         code uses those internals (InputManager, IRenderer, IClassesChangedListener). Dropping the
+         key or renaming the assembly fails the build with CS0122. -->
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)/avalonia.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)/../readme.md" Pack="true" PackagePath="/" Visible="false" />
-    <None Include="$(MSBuildThisFileDirectory)/Assets/Icon.png" Pack="true" PackagePath="/" Visible="false"/>
+    <!-- PackagePath pins the cased name so it matches PackageReadmeFile regardless of the
+         on-disk casing (README.md on a case-insensitive filesystem). -->
+    <None Include="$(MSBuildThisFileDirectory)/../README.md" Pack="true" PackagePath="readme.md" Visible="false" />
   </ItemGroup>
 
 </Project>

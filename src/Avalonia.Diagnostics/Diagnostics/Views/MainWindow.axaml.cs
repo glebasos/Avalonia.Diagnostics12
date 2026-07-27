@@ -40,11 +40,11 @@ namespace Avalonia.Diagnostics.Views
                     if (x is RawPointerEventArgs pointerEventArgs)
                     {
                         // Avalonia 12: RawInputEventArgs.Root is an IInputRoot (PresentationSource),
-                        // no longer a Visual. Convert through the owning TopLevel: a TopLevel is its
-                        // own visual root, so PointToScreen is well-defined even for popup roots
-                        // (converting via a non-root element can throw when it shares no common
-                        // ancestor with the presentation source's root visual).
-                        if (TopLevel.GetTopLevel(x.Root.RootElement) is { } inputTopLevel)
+                        // no longer a Visual. Resolve the owning TopLevel (its RootElement is a host
+                        // visual above the TopLevel, so GetTopLevel can't be used) and convert through
+                        // it: a TopLevel is its own visual root, so PointToScreen is well-defined even
+                        // for popup roots.
+                        if (ResolveTopLevel(x.Root) is { } inputTopLevel)
                         {
                             _lastPointerPosition = inputTopLevel.PointToScreen(pointerEventArgs.Position);
                         }
@@ -174,11 +174,13 @@ namespace Avalonia.Diagnostics.Views
         private void RawKeyDown(RawKeyEventArgs e)
         {
             // Avalonia 12: PointerOverRoot is an IInputRoot (a PresentationSource), no longer the
-            // TopLevel itself, so resolve the owning TopLevel from the root element.
+            // TopLevel itself. Its RootElement is a TopLevelHost that sits ABOVE the TopLevel in the
+            // visual tree, so TopLevel.GetTopLevel (which walks up) returns null; the actual TopLevel
+            // is a descendant. ResolveTopLevel searches downward instead.
             if (_hotKeys is null ||
                 DataContext is not MainViewModel vm ||
                 vm.PointerOverRoot is not { } pointerOverRoot ||
-                TopLevel.GetTopLevel(pointerOverRoot.RootElement) is not { } root)
+                ResolveTopLevel(pointerOverRoot) is not { } root)
             {
                 return;
             }
@@ -228,6 +230,20 @@ namespace Avalonia.Diagnostics.Views
                     _ => modifiers
                 };
             }
+        }
+
+        /// <summary>
+        /// Resolves the <see cref="TopLevel"/> associated with an input root. In Avalonia 12 the
+        /// input root's <c>RootElement</c> is a host visual that sits above the TopLevel, so the
+        /// TopLevel must be found by searching downward rather than via <see cref="TopLevel.GetTopLevel"/>.
+        /// </summary>
+        private static TopLevel? ResolveTopLevel(IInputRoot inputRoot)
+        {
+            if (inputRoot.RootElement is not Visual rootVisual)
+                return null;
+
+            return rootVisual as TopLevel
+                   ?? rootVisual.GetVisualDescendants().OfType<TopLevel>().FirstOrDefault();
         }
 
         private void FreezeValueFrames(MainViewModel vm)
