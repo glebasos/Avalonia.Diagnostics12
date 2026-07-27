@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <Product>AvaDiagnostics12</Product>
-    <Version>12.1.0$(CIVersionSuffix)</Version>
+    <Version>12.1.1$(CIVersionSuffix)</Version>
     <Authors>glebasos</Authors>
     <Copyright>Copyright 2013-2025 &#169; The AvaloniaUI Project. Fork changes released under the same MIT license.</Copyright>
     <PackageProjectUrl>https://github.com/glebasos/Avalonia.Diagnostics12</PackageProjectUrl>
