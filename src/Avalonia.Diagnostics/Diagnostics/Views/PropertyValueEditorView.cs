@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
+using System.Windows.Input;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Shapes;
@@ -336,6 +337,9 @@ namespace Avalonia.Diagnostics.Views
 
             public static bool CanConvertFromString(Type type)
             {
+                if (IsCommand(type))
+                    return false;
+
                 var converter = TypeDescriptor.GetConverter(type);
 
                 if (converter.CanConvertFrom(typeof(string)))
@@ -343,6 +347,18 @@ namespace Avalonia.Diagnostics.Views
 
                 return GetParseMethod(type, out _) != null;
             }
+
+            /// <summary>
+            /// ICommand declares its [TypeConverter] by assembly-qualified name, pointing at WPF's
+            /// System.Windows.Input.CommandConverter in PresentationFramework. In an app that also loads WPF
+            /// (&lt;UseWPF&gt;, WPF interop) TypeDescriptor resolves it, and that converter reports
+            /// CanConvertFrom(string) == true while ConvertFrom throws NotSupportedException for anything that
+            /// isn't a WPF RoutedCommand name - so the editor became a writable TextBox that flagged its own
+            /// initial text as invalid. Nothing meaningful can be authored from a string here in any case, so
+            /// keep commands read-only. Without WPF loaded ICommand falls back to ReferenceConverter, which
+            /// already reports false; this just makes that behaviour independent of what else is loaded.
+            /// </summary>
+            private static bool IsCommand(Type type) => typeof(ICommand).IsAssignableFrom(type);
 
             public static string? ToString(object o)
             {
