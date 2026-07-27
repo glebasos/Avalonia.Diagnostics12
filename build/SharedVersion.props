@@ -21,6 +21,17 @@
          key or renaming the assembly fails the build with CS0122. -->
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)/avalonia.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
+
+    <!-- Symbols + Source Link: this is a debugging tool, so consumers who hit a bug in it need to be
+         able to step into it. Emits a .snupkg alongside the .nupkg, pushed to the same feed. -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <DebugType>portable</DebugType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <!-- Normalises absolute source paths in Release packs (which is what gets published) while
+         leaving local Debug builds alone. Source Link resolves the sources from GitHub instead. -->
+    <ContinuousIntegrationBuild Condition="'$(ContinuousIntegrationBuild)' == '' and '$(Configuration)' == 'Release'">true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
   <ItemGroup>
