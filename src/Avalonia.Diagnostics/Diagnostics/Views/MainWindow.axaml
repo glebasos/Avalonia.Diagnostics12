@@ -3,7 +3,7 @@
         xmlns:views="clr-namespace:Avalonia.Diagnostics.Views;assembly=Avalonia.Diagnostics"
         xmlns:viewModels="clr-namespace:Avalonia.Diagnostics.ViewModels;assembly=Avalonia.Diagnostics"
         xmlns:diagnostics="clr-namespace:Avalonia.Diagnostics;assembly=Avalonia.Diagnostics"
-        Title="Avalonia DevTools"
+        Title="DevTools for Avalonia"
         x:Class="Avalonia.Diagnostics.Views.MainWindow"
         x:DataType="viewModels:MainViewModel">
   <Window.DataTemplates>

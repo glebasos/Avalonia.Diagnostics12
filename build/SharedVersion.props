@@ -6,13 +6,13 @@
     <Version>12.1.1$(CIVersionSuffix)</Version>
     <Authors>glebasos</Authors>
     <Copyright>Copyright 2013-2025 &#169; The AvaloniaUI Project. Fork changes released under the same MIT license.</Copyright>
-    <PackageProjectUrl>https://github.com/glebasos/Avalonia.Diagnostics12</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/glebasos/Avalonia.Diagnostics12</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/glebasos/AvaDiagnostics12</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/glebasos/AvaDiagnostics12</RepositoryUrl>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageDescription>Unofficial community fork of the legacy Avalonia.Diagnostics in-process DevTools, updated to run against Avalonia 12. Provides the classic AttachDevTools() window for inspecting the visual tree, styles, properties and events of an Avalonia application. Not affiliated with or endorsed by the AvaloniaUI project.</PackageDescription>
     <PackageTags>avalonia;avaloniaui;devtools;diagnostics;debugging;visual tree;inspector</PackageTags>
-    <PackageReleaseNotes>https://github.com/glebasos/Avalonia.Diagnostics12/releases</PackageReleaseNotes>
+    <PackageReleaseNotes>https://github.com/glebasos/AvaDiagnostics12/releases</PackageReleaseNotes>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
     <RepositoryType>git</RepositoryType>
     <!-- Signing with AvaloniaUI's public snk is required, not cosmetic: Avalonia 12 grants access to
