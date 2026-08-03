@@ -21,12 +21,25 @@ namespace Avalonia.Diagnostics.UnitTests
             vm.SetOptions(new DevToolsOptions());
 
             var descriptions = vm.HotKeyDescriptions!;
-            Assert.Equal(6, descriptions.Count);
             Assert.Contains(descriptions, d => d.Gesture == "F12" && d.BriefDescription == "Launch DevTools");
             Assert.Contains(descriptions, d => d.Gesture == "Alt+S");
             Assert.Contains(descriptions, d => d.Gesture == "Alt+D");
             Assert.Contains(descriptions, d => d.Gesture == "Ctrl+Alt+F");
             Assert.Contains(descriptions, d => d.Gesture == "F8");
+        }
+
+        [Fact]
+        public void The_Refresh_Gesture_Is_Listed_Even_Though_It_Is_Not_Configurable()
+        {
+            // F5 is owned by the DevTools window rather than the debugged app, so it has no entry in
+            // HotKeyConfiguration - but it still belongs on the page users consult for hotkeys.
+            var vm = new HotKeyPageViewModel();
+
+            vm.SetOptions(new DevToolsOptions());
+
+            Assert.Contains(
+                vm.HotKeyDescriptions!,
+                d => d.Gesture == "F5" && d.BriefDescription == "Refresh Properties");
         }
 
         [Fact]

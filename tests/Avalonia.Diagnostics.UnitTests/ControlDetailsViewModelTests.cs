@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Controls;
+using Avalonia.Controls.Documents;
 using Avalonia.Diagnostics.ViewModels;
 using Avalonia.Layout;
 using Avalonia.Headless.XUnit;
@@ -248,6 +249,50 @@ namespace Avalonia.Diagnostics.UnitTests
             Assert.NotNull(visual.Details.Layout);
         }
 
+        [AvaloniaFact]
+        public void Refreshing_Picks_Up_Clr_Properties_That_Never_Notify()
+        {
+            // IsEffectivelyVisible is a plain CLR property whose change event is internal, so nothing
+            // pushes it into the grid: it stays stale until the pane is refreshed by hand.
+            var border = new Border();
+            var parent = new StackPanel { IsVisible = false, Children = { border } };
+            using var fixture = Fixture.Create(border, showInWindow: false, host: parent);
+
+            var effectivelyVisible = fixture.Clr(nameof(Visual.IsEffectivelyVisible));
+            Assert.Equal(false, effectivelyVisible.Value);
+
+            parent.IsVisible = true;
+            TestWindow.RunLayout();
+
+            Assert.Equal(false, effectivelyVisible.Value);
+
+            fixture.Details.RefreshProperties();
+
+            Assert.Equal(true, effectivelyVisible.Value);
+        }
+
+        [AvaloniaFact]
+        public void Refreshing_Works_For_A_Non_Visual_Target()
+        {
+            // Inlines are StyledElements but not Visuals, so they reach the details pane through the
+            // logical tree and have no Layout. Refreshing one must still re-read it rather than
+            // trip over the missing visual.
+            var run = new Run("hi");
+            var text = new TextBlock();
+            text.Inlines!.Add(run);
+
+            using var fixture = Fixture.Create(run);
+            Assert.Null(fixture.Details.Layout);
+
+            var foreground = fixture.Avalonia("[TextElement.Foreground]");
+            Assert.Equal(Brushes.Black, foreground.Value);
+
+            run.Foreground = Brushes.Red;
+            fixture.Details.RefreshProperties();
+
+            Assert.Same(Brushes.Red, foreground.Value);
+        }
+
         private sealed class Fixture : System.IDisposable
         {
             private readonly Scope _scope;
@@ -269,16 +314,26 @@ namespace Avalonia.Diagnostics.UnitTests
             public AvaloniaPropertyViewModel Avalonia(string name) =>
                 Properties.OfType<AvaloniaPropertyViewModel>().Single(p => p.Name == name);
 
+            public ClrPropertyViewModel Clr(string name) =>
+                Properties.OfType<ClrPropertyViewModel>().First(p => p.Name == name);
+
+            /// <param name="host">
+            /// Shown in the window instead of <paramref name="target"/>, for targets that need a
+            /// parent (or that are not <see cref="Control"/>s at all, such as inlines).
+            /// </param>
             public static Fixture Create(
-                Control control,
+                AvaloniaObject target,
                 ISet<string>? pinned = null,
-                bool showInWindow = false)
+                bool showInWindow = false,
+                Control? host = null)
             {
-                var scope = showInWindow ? Scope.Create(control) : Scope.Create();
+                var scope = host is not null ? Scope.Create(host)
+                    : showInWindow ? Scope.Create(target as Control)
+                    : Scope.Create();
 
                 pinned ??= new HashSet<string>();
-                var page = new TreePageViewModel(scope.Model, LogicalTreeNode.Create(control), pinned);
-                var details = new ControlDetailsViewModel(page, control, pinned);
+                var page = new TreePageViewModel(scope.Model, LogicalTreeNode.Create(target), pinned);
+                var details = new ControlDetailsViewModel(page, target, pinned);
                 details.UpdatePropertiesView(showImplementedInterfaces: true);
                 details.UpdateStyleFilters();
 

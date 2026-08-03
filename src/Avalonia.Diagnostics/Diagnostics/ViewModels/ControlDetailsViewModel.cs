@@ -20,6 +20,7 @@ namespace Avalonia.Diagnostics.ViewModels
         private readonly AvaloniaObject _avaloniaObject;
         private readonly ISet<string> _pinnedProperties;
         private IDictionary<object, PropertyViewModel[]>? _propertyIndex;
+        private PropertyViewModel[] _properties = Array.Empty<PropertyViewModel>();
         private PropertyViewModel? _selectedProperty;
         private DataGridCollectionView? _propertiesView;
         private bool _snapshotFrames;
@@ -470,6 +471,8 @@ namespace Avalonia.Diagnostics.ViewModels
                     })
                 .ToArray();
 
+            _properties = properties;
+
             _propertyIndex = properties
                 .GroupBy(x => x.Key)
                 .ToDictionary(x => x.Key, x => x.ToArray());
@@ -516,6 +519,27 @@ namespace Avalonia.Diagnostics.ViewModels
 
                     break;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Re-reads every listed property from the target.
+        /// </summary>
+        /// <remarks>
+        /// Avalonia properties push their changes into the grid, but plain CLR properties such as
+        /// <see cref="Visual.IsEffectivelyVisible"/> raise no notification at all, so their cells go
+        /// stale as soon as anything changes them. This is the manual way out.
+        /// </remarks>
+        public void RefreshProperties()
+        {
+            foreach (var property in _properties)
+            {
+                property.Update();
+            }
+
+            if (!SnapshotFrames)
+            {
+                UpdateStyles();
             }
         }
 

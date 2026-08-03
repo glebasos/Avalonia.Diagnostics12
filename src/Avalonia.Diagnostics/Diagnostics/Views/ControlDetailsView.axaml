@@ -44,14 +44,19 @@
     
     <Grid Grid.Column="0" RowDefinitions="Auto,Auto,*">
 
-      <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto, Auto">
-        <Button Grid.Column="0" Grid.RowSpan="2" Content="^" 
+      <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto, Auto">
+        <Button Grid.Column="0" Grid.RowSpan="2" Content="^"
                 IsEnabled="{Binding CanNavigateToParentProperty}"
                 Margin="0 0 4 0"
                 ToolTip.Tip="Navigate to parent property"
                 Command="{Binding NavigateToParentProperty}" />
         <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding SelectedEntityName}" FontWeight="Bold" />
         <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding SelectedEntityType}" FontStyle="Italic" />
+        <Button Grid.Column="2" Grid.RowSpan="2" Content="&#x27F3;"
+                Margin="4 0 0 0"
+                HotKey="F5"
+                ToolTip.Tip="Re-read all property values (F5). Needed for CLR properties such as IsEffectivelyVisible, which report no changes."
+                Command="{Binding RefreshProperties}" />
       </Grid>
       
       <controls:FilterTextBox Grid.Row="1"

@@ -25,7 +25,9 @@ namespace Avalonia.Diagnostics.ViewModels
                 new(CreateDescription(hotKeys.ValueFramesUnfreeze), "Unfreeze Value Frames", "Resumes refreshing the Value Frames inspector for the selected Control"),
                 new(CreateDescription(hotKeys.InspectHoveredControl), "Inspect Control Under Pointer", "Inspects the hovered Control in the Logical or Visual Tree Page"),
                 new(CreateDescription(hotKeys.TogglePopupFreeze), "Toggle Popup Freeze", "Prevents visible Popups from closing so they can be inspected"),
-                new(CreateDescription(hotKeys.ScreenshotSelectedControl), "Screenshot Selected Control", "Saves a Screenshot of the Selected Control in the Logical or Visual Tree Page")
+                new(CreateDescription(hotKeys.ScreenshotSelectedControl), "Screenshot Selected Control", "Saves a Screenshot of the Selected Control in the Logical or Visual Tree Page"),
+                // Not configurable: this one is handled by the DevTools window itself, not the debugged app.
+                new("F5", "Refresh Properties", "Re-reads every value in the property grid. CLR properties such as IsEffectivelyVisible report no changes, so they only update on demand")
             };
         }
 
